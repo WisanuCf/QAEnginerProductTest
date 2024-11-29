@@ -65,8 +65,8 @@ namespace ApiTests
         }
 
         [TestFixture]
-    public class CategoriesApiTests
-    {
+        public class CategoriesApiTests
+        {
         private RestClient _client;
 
         [SetUp]
@@ -102,5 +102,50 @@ namespace ApiTests
         }
     }
 
+        [TestFixture]
+        public class SortProductApiTests
+        {
+    private RestClient _client;
+
+    [SetUp]
+    public void SetUp()
+    {
+        _client = new RestClient("https://fakestoreapi.com");
+    }
+
+    [TearDown]
+    public void TearDown()
+    {
+        _client.Dispose();
+    }
+
+    [Test]
+    public void GetProductsSortedByIdDescending_ShouldReturnProductsInDescendingOrder()
+    {
+        // Arrange
+        var request = new RestRequest("/products?sort=desc", Method.Get);
+
+        // Act
+        var response = _client.Execute(request);
+
+        // Assert
+        Assert.That(response.IsSuccessful, Is.True, "API request was not successful.");
+        Assert.That(response.StatusCode, Is.EqualTo(System.Net.HttpStatusCode.OK), "Unexpected HTTP status code.");
+        Assert.That(response.Content, Is.Not.Empty, "Response content should not be empty.");
+
+        // Deserialize JSON response to Product list
+        var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+        List<Product> products = JsonSerializer.Deserialize<List<Product>>(response.Content, options) ?? new List<Product>();
+
+        Assert.That(products, Is.Not.Null.And.Not.Empty, "Failed to deserialize products.");
+
+        // Check if products are sorted by ID in descending order
+        for (int i = 1; i < products.Count; i++)
+        {
+            Assert.That(products[i].Id, Is.LessThanOrEqualTo(products[i - 1].Id),
+                $"Products are not sorted correctly by ID. Found {products[i].Id} before {products[i - 1].Id}");
+        }
+    }
+    }
     }
 }
