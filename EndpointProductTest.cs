@@ -7,6 +7,13 @@ using System.Threading.Tasks;
 
 namespace ApiTests
 {
+
+    public class Product
+    {
+        public int Id { get; set; }
+        public decimal Price { get; set; }
+    }
+
     [TestFixture]
     public class ProductApiTests
     {
@@ -38,5 +45,25 @@ namespace ApiTests
             Assert.That(response.StatusCode, Is.EqualTo(System.Net.HttpStatusCode.OK), "Unexpected HTTP status code.");
             Assert.That(response.Content, Is.Not.Empty, "Response content should not be empty.");
         }
+
+        [Test]
+        public void Test_CheckProductFormat()
+        {
+            // Arrange
+            var request = new RestRequest("/products", Method.Get);
+
+            // Act
+            var response = _client.Execute(request);
+
+            Assert.That(response.Content, Is.Not.Null.And.Not.Empty, "Response content is null or empty.");
+
+            var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+            List<Product> products = JsonSerializer.Deserialize<List<Product>>(response.Content, options) ?? new List<Product>();  // Ensure not null
+
+            // Assert
+            Assert.That(products.Count, Is.LessThanOrEqualTo(20), "Expected at most 20 products.");
+        }
+
+
     }
 }
