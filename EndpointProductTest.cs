@@ -25,9 +25,18 @@ namespace ApiTests
         }
 
         [Test]
-        public void Test1()
+        public void Test_GetProducts_ReturnsOk()
         {
-            Assert.Pass();
+            // Arrange
+            var request = new RestRequest("/products", Method.Get);
+
+            // Act
+            var response = _client.Execute(request);
+
+            // Assert
+            Assert.That(response.IsSuccessful, Is.True, "API request failed.");
+            Assert.That(response.StatusCode, Is.EqualTo(System.Net.HttpStatusCode.OK), "Unexpected HTTP status code.");
+            Assert.That(response.Content, Is.Not.Empty, "Response content should not be empty.");
         }
     }
 }
