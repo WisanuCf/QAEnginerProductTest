@@ -98,7 +98,7 @@ namespace ApiTests
             List<string> categories = JsonSerializer.Deserialize<List<string>>(response.Content) ?? new List<string>();  // Ensure not null
 
             Assert.That(categories, Is.Not.Null.And.Not.Empty, "Failed to deserialize categories.");
-            Console.WriteLine(JsonSerializer.Serialize(categories));
+//            Console.WriteLine(JsonSerializer.Serialize(categories));
         }
     }
 
