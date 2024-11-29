@@ -65,6 +65,62 @@ namespace ApiTests
         }
 
         [TestFixture]
+        public class DeleteApiTests
+        {
+    private RestClient _client;
+
+    [SetUp]
+    public void SetUp()
+    {
+        _client = new RestClient("https://fakestoreapi.com");
+    }
+
+    [TearDown]
+    public void TearDown()
+    {
+        _client.Dispose();
+    }
+
+    [Test]
+    public void Test_DeleteProduct_ReturnsOK()  // แก้ไขชื่อ Test ให้ตรงกับสิ่งที่ทดสอบ
+    {
+        // Arrange
+        var productId = 6;
+        var request = new RestRequest($"/products/{productId}", Method.Delete);
+
+        // ก่อนการลบ แสดงข้อมูลผลิตภัณฑ์
+        var getRequest = new RestRequest($"/products/{productId}", Method.Get);
+        var getResponse = _client.Execute(getRequest);
+
+//        Console.WriteLine("Before Deleting Product:");
+//        Console.WriteLine(getResponse.Content); // แสดงข้อมูลผลิตภัณฑ์ที่ต้องการลบ
+
+        // Act
+        var response = _client.Execute(request);
+
+        // หลังจากลบ แสดงผลลัพธ์
+//        if (response.IsSuccessful)
+//        {
+//            Console.WriteLine($"Product with ID {productId} deleted successfully.");
+//        }
+//        else
+//        {
+//            Console.WriteLine($"Failed to delete product with ID {productId}. Status Code: {response.StatusCode}");
+//        }
+
+        // Assert
+        Assert.That(response.StatusCode, Is.EqualTo(System.Net.HttpStatusCode.OK), "Expected OK response.");  // เปลี่ยนจาก NoContent เป็น OK
+
+        // ตรวจสอบข้อมูลหลังจากลบ (ทำการดึงข้อมูลซ้ำอีกครั้ง)
+        var checkDeletedRequest = new RestRequest($"/products/{productId}", Method.Get);
+        var checkDeletedResponse = _client.Execute(checkDeletedRequest);
+
+//        Console.WriteLine("After Deleting Product:");
+//        Console.WriteLine(checkDeletedResponse.Content); // ถ้าผลลัพธ์เป็น 404 แสดงว่าไม่พบข้อมูลหลังการลบ
+    }
+    }
+
+        [TestFixture]
         public class CategoriesApiTests
         {
         private RestClient _client;
