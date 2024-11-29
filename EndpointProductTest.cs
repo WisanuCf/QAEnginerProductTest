@@ -7,13 +7,6 @@ using System.Threading.Tasks;
 
 namespace ApiTests
 {
-
-    public class Product
-    {
-        public int Id { get; set; }
-        public decimal Price { get; set; }
-    }
-
     [TestFixture]
     public class ProductApiTests
     {
@@ -30,6 +23,15 @@ namespace ApiTests
         {
             _client.Dispose();
         }
+
+        public class Product
+        {
+    public int Id { get; set; }
+    public decimal Price { get; set; }
+    public string Description { get; set; } = string.Empty;
+    public string Image { get; set; } = string.Empty;
+    public string Category { get; set; } = string.Empty;
+}
 
         [Test]
         public void Test_GetProducts_ReturnsOk()
@@ -63,6 +65,36 @@ namespace ApiTests
             // Assert
             Assert.That(products.Count, Is.LessThanOrEqualTo(20), "Expected at most 20 products.");
         }
+
+        [Test]
+        public async Task Test_AddProduct_ReturnsValidProduct()
+        {
+    var newProduct = new
+    {
+        title = "Test Product",
+        price = 112.5M,
+        description = "This is a test product",
+        image = "https://example.com/test.jpg",
+        category = "electronics"
+    };
+
+    // Arrange
+    var request = new RestRequest("products", Method.Post);
+    request.AddJsonBody(newProduct);
+
+    // Act
+    var response = await _client.ExecuteAsync<Product>(request);
+
+    // Assert
+    Assert.That(response.IsSuccessful, Is.True, "API request failed.");
+    Assert.That(response.StatusCode, Is.EqualTo(System.Net.HttpStatusCode.OK));
+    Assert.That(response.Content, Is.Not.Empty);
+
+    var createdProduct = JsonSerializer.Deserialize<Product>(response.Content, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+
+    Assert.That(createdProduct?.Id, Is.GreaterThan(0), "Expected a valid product ID.");
+    Assert.That(createdProduct?.Description, Is.EqualTo(newProduct.description));
+}
 
         [TestFixture]
         public class DeleteApiTests
